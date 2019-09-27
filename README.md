@@ -21,3 +21,21 @@ Experimental support for Live Share in Visual Studio Code for NixOS. The need to
   };
 }
 ```
+
+## with home-manager
+
+`ln -s $(realpath pkgs/overlay.nix) ~/.config/nixpkgs/overlays/`
+
+```nix
+ # home.nix
+ imports = [
+        /path/to/nixos-vsliveshare/modules/home-manager-module.nix
+    ];
+
+    services.vsliveshare = {
+        enable = true;
+        enableWritableWorkaround = true;
+        enableDiagnosticsWorkaround = true;
+        extensionsDir = "/home/user/.vscode-oss/extensions/";
+    };
+```

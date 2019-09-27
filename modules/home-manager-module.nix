@@ -1,10 +1,9 @@
-{ config, lib, pkgs, ... }:
-
+{pkgs, lib, config, ...}:
 with lib;
-
 let
+  livesharePkg = pkgs.callPackage liveshareGist {};
   cfg = config.services.vsliveshare;
-  pkg = pkgs.vsliveshare.override { enableDiagnosticsWorkaround = cfg.enableDiagnosticsWorkaround; };
+  pkg = livesharePkg.override { enableDiagnosticsWorkaround = cfg.enableDiagnosticsWorkaround; };
 
   writableWorkaroundScript = import ./writableWorkaroundScript.nix { inherit pkgs lib config cfg; } ;
 
@@ -16,7 +15,7 @@ in {
 
     extensionsDir = mkOption {
       type = str;
-      example = "/home/user/.vscode/extensions";
+      default = "$HOME/.vscode/extensions";
       description = ''
         The VS Code extensions directory.
         CAUTION: The workaround will remove ms-vsliveshare.vsliveshare* inside this directory!
@@ -25,20 +24,24 @@ in {
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = with pkgs; [ bash desktop-file-utils xlibs.xprop ]
-      ++ optional (!cfg.enableWritableWorkaround) pkg;
+    home.packages = with pkgs; [ bash desktop-file-utils xlibs.xprop ];
 
-    services.gnome3.gnome-keyring.enable = true;
+    services.gnome-keyring.enable = true;
 
-    systemd.services.vsliveshare-writable-workaround = mkIf cfg.enableWritableWorkaround {
-      description = "VS Code Live Share extension writable workaround";
-      path = with pkgs; [ file ];
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = "yes";
+    systemd.user.services.vsliveshare-writable-workaround =  {
+      Unit = {
+        Description = "VS Code Live Share extension writable workaround";
+        PartOf = [ "graphical-session-pre.target" ];
+      };
+
+      Service = {
+        Environment = makeBinPath (with pkgs; [ file ]);
         ExecStart = writableWorkaroundScript;
       };
-      wantedBy = [ "multi-user.target" ];
+
+      Install = {
+        WantedBy = [ "graphical-session-pre.target" ];
+      };
     };
   };
 }

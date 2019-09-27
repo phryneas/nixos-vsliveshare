@@ -39,8 +39,8 @@ in (vscode-utils'.buildVscodeMarketplaceExtension {
   mktplcRef = {
     name = "vsliveshare";
     publisher = "ms-vsliveshare";
-    version = "1.0.614";
-    sha256 = "1lmpp18l6y2bkrvzra6x0wd100wyc6lwxk2ki84my9ig00z32a6w";
+    version = "1.0.869";
+    sha256 = "1ik9qib69srzy3qhxrsxa9ahms8lq50cpbz5ipd0idczz21kamsp";
   };
 }).overrideAttrs(attrs: {
   prePatch = ''
@@ -72,7 +72,6 @@ in (vscode-utils'.buildVscodeMarketplaceExtension {
       ${dotnet-sdk}/shared/Microsoft.NETCore.App/*/* \
       dotnet_modules/runtimes/linux-x64/!(native) \
       dotnet_modules/runtimes/linux-x64/native/* \
-      dotnet_modules/runtimes/unix/lib/netstandard1.3/* \
       dotnet_modules
 
     # Those we need are already copied over, the rest is just a waste of space.
